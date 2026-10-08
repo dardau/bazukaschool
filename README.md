@@ -1,3 +1,22 @@
 # BazukaSchool IELTS
 
-Personal IELTS study workspace. See `ielts-studio/` for the application source.
+Личное учебное пространство для подготовки к IELTS. Приложение создано на Next.js и публикуется через Vercel.
+
+## Запуск локально
+
+```bash
+npm ci
+npm run dev
+```
+
+Для production-сборки: `npm run build`.
+
+## Прогресс
+
+Словарь, ответы, заметки и отметки уроков сохраняются в localStorage браузера. Данные остаются на устройстве и не синхронизируются между браузерами.
+
+## Размещение
+
+Приложение находится в корне репозитория `dardau/bazukaschool`. Vercel определит Next.js; проект использует статический экспорт.
+
+Учебные источники сохранены в `public/materials/`, включая оригинальный handout IELTS 24/7 и материалы BazukaSchool Family.
