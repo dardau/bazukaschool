@@ -2335,3 +2335,4 @@ summary:focus-visible {
     max-height: 180px;
   }
 }
+.workspace > .back { display: block; margin-bottom: 18px; }
