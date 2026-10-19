@@ -1,0 +1,102 @@
+{
+  "reviewedOn": "2026-10-20",
+  "scope": "BazukaSchool course requirements; source media remains outside the public repository",
+  "requirements": [
+    {
+      "id": "course-structure",
+      "source": "19 Oct 14:44–14:50; 38s video message; 83s platform demo",
+      "request": "One main course with lessons divided into sections, brief introduction, explanation, practice, notes and homework.",
+      "implementation": "CourseWorkspace; section navigation, progress, notes, homework; two specified lessons",
+      "status": "implemented"
+    },
+    {
+      "id": "lesson-1",
+      "request": "Writing Task 2 + Speaking Personality + punctuation",
+      "status": "implemented",
+      "details": "Original handout plus explicitly labelled newly authored explanations and exercises"
+    },
+    {
+      "id": "lesson-2",
+      "request": "Reading introduction + Passage 1 + complex structures + Speaking Family",
+      "status": "implemented",
+      "details": "New shorter fictional practice passage, not an official mock test; full original Family preserved"
+    },
+    {
+      "id": "separate-library",
+      "source": "38s video message; three screenshots",
+      "request": "Separate articles area with exercises and questions; Language Boost Corner with audio and topical vocabulary",
+      "status": "implemented",
+      "details": "Two linked full original articles, worksheets, Family audio/video, speaking responses"
+    },
+    {
+      "id": "audio-feedback",
+      "source": "11 Oct 18:57; user clarification in Codex",
+      "request": "Student audio answers with teacher feedback",
+      "status": "implemented-local",
+      "constraint": "One device and browser. Names are labels, not authenticated accounts; no remote synchronization"
+    },
+    {
+      "id": "speaking-development",
+      "source": "11 Oct 19:04",
+      "request": "Topical vocabulary exercises, ideas, and examples of developed answers aimed at Band 8",
+      "status": "implemented",
+      "details": "20 thematic coach models accessible from topic Practice; contextual exercises and annotated rewrites for Personality and Family; four criteria linked to IELTS; no automatic Band assignment"
+    },
+    {
+      "id": "writing-oral",
+      "source": "3 Oct 22:19",
+      "request": "Five Writing topics also used for oral vocabulary and idea practice",
+      "status": "implemented",
+      "details": "All original prompts retained, each now has audio response practice"
+    },
+    {
+      "id": "friendly-colours",
+      "source": "11 Oct 19:05; Instagram and photos",
+      "request": "Less formal, more welcoming colours",
+      "status": "implemented",
+      "details": "Peach, mint and lavender lesson cards; friendly course home; section navigation"
+    },
+    {
+      "id": "teacher-materials",
+      "source": "19 Oct 14:44; platform demo",
+      "request": "Accept content by slide without requiring existing presentations; short videos with explanations and tasks",
+      "status": "implemented-local-authoring",
+      "details": "Each section accepts teacher text and HTTPS resource link, with inline YouTube or MP4 player. Actual new teacher lesson recordings have not been supplied. Local additions need code publication to appear for other browsers."
+    },
+    {
+      "id": "telegram",
+      "source": "19 Oct 14:51",
+      "request": "Ask how similar organisation can be made in Telegram",
+      "status": "guidance-only",
+      "details": "Topics in a group can separate announcements, lessons, homework and speaking. No target group supplied; no Telegram changes or messages made."
+    },
+    {
+      "id": "lesson-recording",
+      "source": "19 Oct 18:50; 47s reply video",
+      "request": "Where to record lessons; previously only Zoom considered",
+      "status": "guidance",
+      "details": "Reply video demonstrates Canva Present and record. Store short recordings per section; no recording of teacher created."
+    }
+  ],
+  "sourceCoverage": {
+    "messages": "All messages in supplied messages.html read, dates 3–19 October 2026",
+    "pdf": "137 pages; identical to deployed original; extracted text retained",
+    "images": "All four original vocabulary/writing images retained; all three new design screenshots inspected",
+    "familyDoc": "Live Google Doc exported and compared: document XML and all 14 media images identical to existing copy",
+    "familyVideo": "YouTube URL opened; complete supplied MP3 transcribed locally for review",
+    "roundVideos": "Both supplied rounds reviewed through local transcription and visual frames; Lina explains course separation, Dar demonstrates Canva",
+    "platformDemo": "Missing from initial export; subsequently found user-specified 17,400,356 byte MP4 in Downloads, reviewed through full transcription and frames",
+    "instagram": "Both provided URLs opened in signed-in browser. Current highlights showed IELTS lesson sections and course promotion; three exported historical screenshots provide the stable module references. Stories may change; not every historical story is recoverable."
+  },
+  "notYetSupplied": [
+    "Teacher-recorded lessons for the new course sections",
+    "Final content and order of later lessons",
+    "Additional academic podcasts/articles",
+    "Target Telegram group, if configuration is wanted"
+  ],
+  "preserve": [
+    "All original materials and source attribution",
+    "Existing localStorage progress keys and IndexedDB recordings",
+    "Recorded natural pronunciation; no synthetic speech added"
+  ]
+}
