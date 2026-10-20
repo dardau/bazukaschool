@@ -1,4 +1,6 @@
 "use client";
+import { cloud } from "@/lib/cloud/client";
+import CloudRecorder from "./cloud-recorder";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Mic, Square, Save, Trash2, Download, Circle } from "lucide-react";
@@ -109,7 +111,17 @@ async function deleteRecording(id: number) {
   });
 }
 
-export default function SpeakingRecorder({
+export default function SpeakingRecorder(props: {
+  questionId: string;
+  prompt?: string;
+}) {
+  return cloud ? (
+    <CloudRecorder key={props.questionId} {...props} />
+  ) : (
+    <LocalSpeakingRecorder {...props} />
+  );
+}
+export function LocalSpeakingRecorder({
   questionId,
   prompt = "",
 }: {
