@@ -2336,3 +2336,31 @@ summary:focus-visible {
   }
 }
 .workspace > .back { display: block; margin-bottom: 18px; }
+
+/* Account and teacher workspace */
+.account-gate { max-width: 520px; margin: 7vh auto; padding: 36px; background: #fffdf9; border: 1px solid #e9ddd2; border-radius: 28px; box-shadow: 0 14px 60px #6c534510; }
+.account-gate h1 { font-size: 32px; line-height: 1.2; margin: 20px 0; }
+.account-gate p { margin: 16px 0; }
+.account-gate form, .cloud-workspace form { display:grid; gap: 18px; }
+.account-gate label,.cloud-workspace label,.audio-studio > label { display:grid; gap:8px; margin: 14px 0; }
+.account-gate input,.cloud-workspace input,.cloud-workspace select,.cloud-workspace textarea,.audio-studio > label input,.audio-studio > label textarea { border:1px solid #dcd5cc; background:#fff; color:#292d33; border-radius:12px; padding:12px; width:100%; min-width:0; }
+.cloud-workspace textarea {min-height:140px;}
+.account-links {display:flex; gap:12px; flex-wrap:wrap; margin:16px 0; align-items:center;}
+.account-links button:not(.primary):not(.secondary) {text-decoration:underline; color:#506e65;}
+.cloud-workspace {display:grid;gap:24px;}
+.cloud-workspace h1 {font-size:32px;}
+.cloud-workspace .panel {padding:26px;}
+.cloud-work-card {padding:24px 0; border-top:1px solid #e6e1d9;overflow-wrap:anywhere;}
+.cloud-work-card h3 {margin:16px 0;}
+.cloud-work-card audio,.audio-studio > audio {width:100%;margin:16px 0;}
+.cloud-work-card small {display:block;}
+.teacher-feedback {background:#eaf4ec;border-radius:16px;padding:20px;margin:18px 0;}
+.student-roster {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:20px;}
+.student-roster article {display:grid;gap:8px;background:#f8f2ea;padding:18px;border-radius:14px;}
+.submission-action {display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:12px;}
+.submission-action small {flex:1;min-width:180px;}
+@media(max-width:600px){.account-gate{margin:20px 12px;padding:24px;}.cloud-workspace .panel{padding:18px;}.cloud-work-card .recording-meta{flex-wrap:wrap;}}
+.account-gate label {margin:0;}
+.account-gate form {gap:14px;}
+.account-gate h1 {margin:16px 0;}
+.account-gate p {margin:12px 0;}
