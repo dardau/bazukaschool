@@ -1,0 +1,1 @@
+{"profile":"product-admin","sourceRoots":["components/skill-navigation"],"locale":"ru-RU","canonicalMap":"UX-CONTRACT.md","requiredCapabilities":["Scrollbar"],"requiredCommands":["build","typecheck"],"commands":{"build":"npm run build","typecheck":"npx tsc --noEmit"}}

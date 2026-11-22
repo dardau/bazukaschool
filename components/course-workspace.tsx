@@ -28,6 +28,8 @@ type Props = {
   openWords: (id: string) => void;
   openBoost: () => void;
   mode?: string;
+  initialLesson?: string;
+  initialSection?: string;
 };
 export function Quiz({
   id,
@@ -225,7 +227,7 @@ function TeacherBlock({
   persist: Props["persist"];
 }) {
   const key = "note:teacher-" + id;
-  const saved = state[key] as {text?: string; url?: string} | undefined;
+  const saved = state[key] as { text?: string; url?: string } | undefined;
   const [text, setText] = useState(saved?.text || ""),
     [url, setUrl] = useState(saved?.url || ""),
     [notice, setNotice] = useState("");
@@ -321,9 +323,12 @@ function TeacherBlock({
   );
 }
 export default function CourseWorkspace(p: Props) {
-  const [lessonId, setLessonId] = useState<string | null>(null),
-    [sectionId, setSectionId] = useState("welcome");
-  const last = p.state["last:course"] as {lesson?:string; section?:string} | undefined;
+  const [lessonId, setLessonId] = useState<string | null>(
+      p.initialLesson || null,
+    ),
+    [sectionId, setSectionId] = useState(p.initialSection || "welcome");
+  const last = p.state["last:course"] as
+    { lesson?: string; section?: string } | undefined;
   const lesson = lessons.find((l) => l.id === lessonId);
   const section =
     lesson?.sections.find((s) => s.id === sectionId) || lesson?.sections[0];
@@ -354,10 +359,7 @@ export default function CourseWorkspace(p: Props) {
             <button
               className="primary"
               onClick={() =>
-                open(
-                  last?.lesson || "1",
-                  last?.section || "welcome",
-                )
+                open(last?.lesson || "1", last?.section || "welcome")
               }
             >
               Продолжить обучение <ArrowRight size={17} />

@@ -2,6 +2,8 @@
 import { useEffect, useState, useRef } from "react";
 import {
   Sparkles,
+  House,
+  ChevronRight,
   BookOpen,
   GraduationCap,
   Mic,
@@ -71,6 +73,7 @@ import CourseWorkspace, {
   BandGuide,
 } from "@/components/course-workspace";
 import LanguageBoost from "@/components/language-boost";
+import { SkillsHome, SkillSection } from "@/components/skill-navigation/skill-sections";
 type Word = {
   id: string;
   en: string;
@@ -83,15 +86,28 @@ type Word = {
 type State = Record<string, any>;
 const editorDrafts: Record<string, string> = {};
 const nav = [
-  { id: "lessons", label: "Основной курс", icon: GraduationCap },
-  { id: "boost", label: "Language Boost", icon: Sparkles },
-  { id: "words", label: "Словарь", icon: BookOpen },
-  { id: "cards", label: "Повторение", icon: Layers },
-  { id: "speaking", label: "Speaking", icon: Mic },
-  { id: "audio", label: "Аудио и фидбек", icon: Headphones },
-  { id: "writing", label: "Writing", icon: PenLine },
-  { id: "library", label: "Все материалы", icon: Library },
-  { id: "guide", label: "План подготовки", icon: Headphones },
+  { id: "home", label: "Главная", icon: House, group: "" },
+  {
+    id: "listening",
+    label: "Listening",
+    icon: Headphones,
+    group: "НАВЫКИ IELTS",
+  },
+  { id: "reading", label: "Reading", icon: BookOpen, group: "" },
+  { id: "writing", label: "Writing", icon: PenLine, group: "" },
+  { id: "speaking", label: "Speaking", icon: Mic, group: "" },
+  {
+    id: "lessons",
+    label: "Основной курс",
+    icon: GraduationCap,
+    group: "МОИ ЗАНЯТИЯ",
+  },
+  { id: "audio", label: "Записи и фидбек", icon: Mic, group: "" },
+  { id: "words", label: "Словарь", icon: Bookmark, group: "ИНСТРУМЕНТЫ" },
+  { id: "cards", label: "Повторение слов", icon: Layers, group: "" },
+  { id: "boost", label: "Статьи и видео", icon: Sparkles, group: "" },
+  { id: "library", label: "Библиотека", icon: Library, group: "" },
+  { id: "guide", label: "План подготовки", icon: FileText, group: "" },
 ];
 const sources = [
   {
@@ -292,9 +308,14 @@ function Editor({
   );
 }
 export default function Home() {
+  const [route, setRoute] = useState("home");
+  const [courseEntry, setCourseEntry] = useState<
+    { lesson: string; section: string } | undefined
+  >();
+  const [boostEntry, setBoostEntry] = useState("articles");
   const [pronunciation, setPronunciation] = useState(""),
     [speakingMode, setSpeakingMode] = useState("family");
-  const [view, setView] = useState("lessons"),
+  const [view, setView] = useState("home"),
     [topic, setTopic] = useState("all"),
     [lesson, setLesson] = useState("1"),
     [query, setQuery] = useState(""),
@@ -389,17 +410,81 @@ export default function Home() {
       (topic === "all" || q.topic === topic) && q.part === Number(practicePart),
   );
   const question = questions[questionIndex % Math.max(1, questions.length)];
-  function go(v: string) {
-    if (v === "speaking") setTopic("1");
-    if (v === "cards" && filter !== "saved") setFilter("all");
-    setView(v);
+  function applyRoute(raw: string) {
+    const [destination, detail, section] = raw.split("/");
+    const known = [
+      ...nav.map((n) => n.id),
+      "course",
+      "lesson",
+      "speaking-practice",
+      "writing-practice",
+    ];
+    const target = known.includes(destination) ? destination : "home";
+    setRoute(raw || "home");
+    setView(target === "course" ? "lessons" : target);
+    setCourseEntry(
+      target === "course" && ["1", "2"].includes(detail)
+        ? { lesson: detail, section: section || "welcome" }
+        : undefined,
+    );
+    if (target === "boost")
+      setBoostEntry(detail === "audio" ? "audio" : "articles");
+    if (target === "lesson" && material.topics.some((t) => t.id === detail))
+      setLesson(detail);
+    if (target === "words")
+      setTopic(material.topics.some((t) => t.id === detail) ? detail : "all");
+    if (target === "speaking-practice") {
+      setSpeakingMode(detail === "questions" ? "practice" : "family");
+      setTopic(
+        detail === "questions"
+          ? material.topics.some((t) => t.id === section)
+            ? section
+            : "all"
+          : "1",
+      );
+    }
+    if (target === "cards")
+      setFilter((current) => current === "saved" ? current : "all");
     setQuery("");
     setPageLimit(60);
     window.scrollTo({ top: 0 });
+    requestAnimationFrame(() =>
+      document
+        .getElementById("workspace-content")
+        ?.focus({ preventScroll: true }),
+    );
+  }
+  useEffect(() => {
+    const read = () => applyRoute(window.location.hash.slice(1) || "home");
+    read();
+    window.addEventListener("hashchange", read);
+    return () => window.removeEventListener("hashchange", read);
+  }, []);
+  const navId =
+    view === "lesson"
+      ? "lessons"
+      : view === "speaking-practice"
+        ? "speaking"
+        : view === "writing-practice"
+          ? "writing"
+          : view;
+  const pageName =
+    view === "lesson"
+      ? selected.name
+      : view === "speaking-practice"
+        ? "Вопросы и практика"
+        : view === "writing-practice"
+          ? "Практика эссе"
+          : nav.find((n) => n.id === navId)?.label || "Главная";
+  useEffect(() => {
+    document.title = pageName + " — BazukaSchool";
+  }, [pageName]);
+  function go(v: string) {
+    if (window.location.hash === "#" + v) applyRoute(v);
+    else window.location.hash = v;
   }
   function openLesson(id: string) {
-    setLesson(id);
-    go("lesson");
+    go("lesson/" + id);
     void persist("last:lesson", id);
   }
   function speak(text: string) {
@@ -566,12 +651,11 @@ export default function Home() {
           />
         )}
         onWords={() => {
-          setTopic("1");
           setFilter("all");
-          go("words");
+          go("words/1");
         }}
         onPractice={() => {
-          go("speaking");
+          go("speaking-practice/questions/1");
           setSpeakingMode("practice");
           setTopic("1");
           setPracticePart("1");
@@ -619,7 +703,7 @@ export default function Home() {
                       .filter((x) => x.topic === q.topic && x.part === q.part)
                       .findIndex((x) => x.id === q.id),
                   );
-                  go("speaking");
+                  go("speaking-practice/questions/" + q.topic);
                   setTopic(q.topic);
                   setSpeakingMode("practice");
                 }}
@@ -648,14 +732,10 @@ export default function Home() {
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {nav.map(({ id, label, icon: Icon }) => (
+            {nav.map(({ id, label, icon: Icon, group }) => (
               <SidebarMenuItem key={id}>
-                <NavButton
-                  active={
-                    view === id || (view === "lesson" && id === "lessons")
-                  }
-                  onClick={() => go(id)}
-                >
+                {group && <p className="nav-group-label">{group}</p>}
+                <NavButton active={navId === id} onClick={() => go(id)}>
                   <Icon size={19} />
                   <span>{label}</span>
                   {id === "words" && (
@@ -665,8 +745,6 @@ export default function Home() {
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
-        </SidebarContent>
-        <SidebarFooter>
           <div className="sidebar-note">
             <BookOpen size={20} />
             <b>Твой прогресс</b>
@@ -674,6 +752,8 @@ export default function Home() {
             <Progress value={(completed / 20) * 100} />
             <p>{mastered} слов выучено</p>
           </div>
+        </SidebarContent>
+        <SidebarFooter>
           <div className="profile">
             <span>Д</span>
             <div>
@@ -686,12 +766,27 @@ export default function Home() {
       <SidebarInset>
         <header className="topbar">
           <div>
-            <SidebarTrigger />
-            <span>
-              {view === "lesson"
-                ? selected.name
-                : nav.find((n) => n.id === view)?.label}
-            </span>
+            <SidebarTrigger aria-label="Открыть или закрыть меню" />
+            <nav
+              className="workspace-breadcrumb"
+              aria-label="Навигационная цепочка"
+            >
+              <a href="#home">Главная</a>
+              {view !== "home" && (
+                <>
+                  <ChevronRight size={14} />
+                  {navId !== view && (
+                    <>
+                      <a href={"#" + navId}>
+                        {nav.find((n) => n.id === navId)?.label}
+                      </a>
+                      <ChevronRight size={14} />
+                    </>
+                  )}
+                  <span aria-current="page">{pageName}</span>
+                </>
+              )}
+            </nav>
           </div>
           <span className="pill" role="status">
             {storage === "loading"
@@ -703,7 +798,7 @@ export default function Home() {
                   : "Личное пространство"}
           </span>
         </header>
-        <main className="workspace">
+        <main className="workspace" id="workspace-content" tabIndex={-1}>
           {error && (
             <div className="error-banner" role="alert">
               {error}
@@ -712,8 +807,20 @@ export default function Home() {
               )}
             </div>
           )}
+          {view === "home" && <SkillsHome state={state} />}
+          {(
+            ["listening", "reading", "writing", "speaking"] as string[]
+          ).includes(view) && (
+            <SkillSection
+              id={view as "listening" | "reading" | "writing" | "speaking"}
+              state={state}
+            />
+          )}
           {view === "lessons" && (
             <CourseWorkspace
+              key={route}
+              initialLesson={courseEntry?.lesson}
+              initialSection={courseEntry?.section}
               state={state}
               persist={persist}
               ready={storage === "ready" && !busy}
@@ -729,17 +836,18 @@ export default function Home() {
               )}
               family={familyCourse}
               openTopic={openLesson}
-              openWriting={() => go("writing")}
+              openWriting={() => go("writing-practice")}
               openWords={(id) => {
-                setTopic(id);
                 setFilter("all");
-                go("words");
+                go("words/" + id);
               }}
               openBoost={() => go("boost")}
             />
           )}
           {view === "boost" && (
             <LanguageBoost
+              key={route}
+              initialTab={boostEntry}
               state={state}
               persist={persist}
               renderEditor={(id, title, placeholder) => (
@@ -869,7 +977,7 @@ export default function Home() {
                           className="primary"
                           onClick={() => {
                             setSpeakingMode("family");
-                            go("speaking");
+                            go("speaking-practice/family");
                           }}
                         >
                           Открыть Family
@@ -939,7 +1047,7 @@ export default function Home() {
                           className="essay-list-item"
                           onClick={() => {
                             setEssay(i);
-                            go("writing");
+                            go("writing-practice");
                           }}
                         >
                           <span>0{i + 1}</span>
@@ -1327,7 +1435,7 @@ export default function Home() {
               )}
             </>
           )}
-          {view === "speaking" && (
+          {view === "speaking-practice" && (
             <>
               <Header
                 tag="ГОВОРИ ВСЛУХ"
@@ -1511,7 +1619,7 @@ export default function Home() {
               <SpeakingRecorder questionId="open-practice" />
             </>
           )}
-          {view === "writing" && (
+          {view === "writing-practice" && (
             <>
               <Header
                 tag="WRITING TASK 2 · СЕМЬЯ И ВОСПИТАНИЕ"
@@ -1686,7 +1794,7 @@ export default function Home() {
                   className="primary"
                   onClick={() => {
                     setSpeakingMode("family");
-                    go("speaking");
+                    go("speaking-practice/family");
                   }}
                 >
                   Открыть Family

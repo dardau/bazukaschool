@@ -59,12 +59,18 @@ const articles = [
   },
 ];
 type Props = {
+  initialTab?: string;
   state: Record<string, unknown>;
   persist: (k: string, v: unknown) => Promise<boolean>;
   renderEditor: (id: string, title: string, hint: string) => React.ReactNode;
 };
-export default function LanguageBoost({ state, persist, renderEditor }: Props) {
-  const [tab, setTab] = useState("articles");
+export default function LanguageBoost({
+  state,
+  persist,
+  renderEditor,
+  initialTab = "articles",
+}: Props) {
+  const [tab, setTab] = useState(initialTab);
   return (
     <>
       <span className="eyebrow">ТВОЁ ПРОСТРАНСТВО ДЛЯ НОВЫХ ИДЕЙ</span>
