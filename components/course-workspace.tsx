@@ -1,4 +1,6 @@
 "use client";
+import { useAccount } from "./account-provider";
+import { cloud } from "@/lib/cloud/client";
 import { useState } from "react";
 import { ArrowRight, Check, Sparkles } from "lucide-react";
 import {
@@ -226,6 +228,7 @@ function TeacherBlock({
   state: Props["state"];
   persist: Props["persist"];
 }) {
+  const { profile } = useAccount();
   const key = "note:teacher-" + id;
   const saved = state[key] as { text?: string; url?: string } | undefined;
   const [text, setText] = useState(saved?.text || ""),
@@ -277,48 +280,52 @@ function TeacherBlock({
           Открыть запись урока / материал ↗
         </a>
       )}
-      <details>
-        <summary>Добавить текст или ссылку преподавателя</summary>
-        <p>
-          Можно вставить информацию по слайдам без готовой презентации.
-          Дополнения сохраняются только в этом браузере.
-        </p>
-        <label>
-          Текст материала
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            maxLength={30000}
-          />
-        </label>
-        <label>
-          Ссылка на видео, презентацию или документ
-          <input
-            type="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://…"
-          />
-        </label>
-        <button
-          className="secondary"
-          onClick={async () => {
-            if (url) {
-              try {
-                if (new URL(url).protocol !== "https:") throw Error();
-              } catch {
-                setNotice("Укажи полную ссылку https://");
-                return;
+      {(!cloud || profile?.role === "teacher") && (
+        <details>
+          <summary>Добавить текст или ссылку преподавателя</summary>
+          <p>
+            Можно вставить информацию по слайдам без готовой презентации.
+            {cloud
+              ? "Дополнения будут доступны всем ученикам школы."
+              : "Дополнения сохраняются только в этом браузере."}
+          </p>
+          <label>
+            Текст материала
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              maxLength={30000}
+            />
+          </label>
+          <label>
+            Ссылка на видео, презентацию или документ
+            <input
+              type="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://…"
+            />
+          </label>
+          <button
+            className="secondary"
+            onClick={async () => {
+              if (url) {
+                try {
+                  if (new URL(url).protocol !== "https:") throw Error();
+                } catch {
+                  setNotice("Укажи полную ссылку https://");
+                  return;
+                }
               }
-            }
-            const ok = await persist(key, { text, url });
-            setNotice(ok ? "Материал сохранён" : "Не удалось сохранить");
-          }}
-        >
-          Сохранить материал
-        </button>
-        <span role="status">{notice}</span>
-      </details>
+              const ok = await persist(key, { text, url });
+              setNotice(ok ? "Материал сохранён" : "Не удалось сохранить");
+            }}
+          >
+            Сохранить материал
+          </button>
+          <span role="status">{notice}</span>
+        </details>
+      )}
     </section>
   );
 }
@@ -869,10 +876,18 @@ export default function CourseWorkspace(p: Props) {
                   "Моя работа и вопросы",
                   "Вставь текст домашнего задания или запиши, что было сложно.",
                 )}
-                {p.renderEditor(
-                  "note:teacher-feedback-" + lesson.id,
-                  "Фидбек преподавателя к занятию",
-                  "Сильные стороны → один приоритет → конкретный следующий шаг.",
+                {cloud ? (
+                  <p>
+                    Отправь домашнюю работу на проверку. Комментарий
+                    преподавателя появится в «Моём кабинете» рядом с твоей
+                    работой.
+                  </p>
+                ) : (
+                  p.renderEditor(
+                    "note:teacher-feedback-" + lesson.id,
+                    "Фидбек преподавателя к занятию",
+                    "Сильные стороны → один приоритет → конкретный следующий шаг.",
+                  )
                 )}
               </section>
               <SpeakingRecorder

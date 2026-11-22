@@ -74,6 +74,10 @@ import CourseWorkspace, {
 } from "@/components/course-workspace";
 import LanguageBoost from "@/components/language-boost";
 import { SkillsHome, SkillSection } from "@/components/skill-navigation/skill-sections";
+import AccountProvider, { useAccount } from "@/components/account-provider";
+import CloudWorkspace, { SubmitAnswer } from "@/components/cloud-workspace";
+import { useStudyState } from "@/lib/cloud/use-study-state";
+import { cloud } from "@/lib/cloud/client";
 type Word = {
   id: string;
   en: string;
@@ -102,6 +106,7 @@ const nav = [
     icon: GraduationCap,
     group: "МОИ ЗАНЯТИЯ",
   },
+  { id: "account", label: "Мой кабинет", icon: GraduationCap, group: "" },
   { id: "audio", label: "Записи и фидбек", icon: Mic, group: "" },
   { id: "words", label: "Словарь", icon: Bookmark, group: "ИНСТРУМЕНТЫ" },
   { id: "cards", label: "Повторение слов", icon: Layers, group: "" },
@@ -241,14 +246,16 @@ function Editor({
   title?: string;
   placeholder?: string;
 }) {
-  const [text, setText] = useState(editorDrafts[id] ?? state[id] ?? ""),
-    [dirty, setDirty] = useState(id in editorDrafts),
+  const { user } = useAccount();
+  const draftKey = (user?.id || "local") + ":" + id;
+  const [text, setText] = useState(editorDrafts[draftKey] ?? state[id] ?? ""),
+    [dirty, setDirty] = useState(draftKey in editorDrafts),
     [status, setStatus] = useState("");
   const current = useRef(text);
   useEffect(() => {
-    setText(editorDrafts[id] ?? state[id] ?? "");
-    setDirty(id in editorDrafts);
-    setStatus(id in editorDrafts ? "Есть несохранённые изменения" : "");
+    setText(editorDrafts[draftKey] ?? state[id] ?? "");
+    setDirty(draftKey in editorDrafts);
+    setStatus(draftKey in editorDrafts ? "Есть несохранённые изменения" : "");
   }, [id]);
   useEffect(() => {
     if (!dirty) setText(state[id] || "");
@@ -279,7 +286,12 @@ function Editor({
         placeholder={placeholder}
         onChange={(e) => {
           setText(e.target.value);
-          editorDrafts[id] = e.target.value;
+          editorDrafts[draftKey] = e.target.value;
+          window.dispatchEvent(
+            new CustomEvent("bazuka-draft", {
+              detail: { key: id, value: true },
+            }),
+          );
           setDirty(true);
           setStatus("Есть несохранённые изменения");
         }}
@@ -292,11 +304,17 @@ function Editor({
           className="primary"
           onClick={async () => {
             setStatus("Сохраняю…");
-            const ok = await persist(id, current.current);
+            const savedText = current.current;
+            const ok = await persist(id, savedText);
             setStatus(ok ? "Сохранено" : "Не сохранено. Повтори попытку.");
-            if (ok) {
+            if (ok && current.current === savedText) {
+              window.dispatchEvent(
+                new CustomEvent("bazuka-draft", {
+                  detail: { key: id, value: false },
+                }),
+              );
               setDirty(false);
-              delete editorDrafts[id];
+              delete editorDrafts[draftKey];
             }
           }}
         >
@@ -304,15 +322,37 @@ function Editor({
           Сохранить
         </button>
       </div>
+      {id.startsWith("answer:") && (
+        <SubmitAnswer
+          assignmentKey={id}
+          title={
+            material.questions.find((q) => "answer:" + q.id === id)?.text ||
+            (id.startsWith("answer:essay-")
+              ? material.writing[Number(id.replace("answer:essay-", ""))]
+              : title)
+          }
+          text={text}
+        />
+      )}
     </div>
   );
 }
-export default function Home() {
+export default function Page() {
+  return (
+    <AccountProvider>
+      <Home />
+    </AccountProvider>
+  );
+}
+function Home() {
   const [route, setRoute] = useState("home");
   const [courseEntry, setCourseEntry] = useState<
     { lesson: string; section: string } | undefined
   >();
   const [boostEntry, setBoostEntry] = useState("articles");
+  const { profile } = useAccount();
+  const { state, storage, error, setError, busy, load, persist } =
+    useStudyState();
   const [pronunciation, setPronunciation] = useState(""),
     [speakingMode, setSpeakingMode] = useState("family");
   const [view, setView] = useState("home"),
@@ -320,10 +360,6 @@ export default function Home() {
     [lesson, setLesson] = useState("1"),
     [query, setQuery] = useState(""),
     [filter, setFilter] = useState("all"),
-    [state, setState] = useState<State>({}),
-    [storage, setStorage] = useState("loading"),
-    [error, setError] = useState(""),
-    [busy, setBusy] = useState(false),
     [pageLimit, setPageLimit] = useState(60),
     [cardIndex, setCardIndex] = useState(0),
     [flipped, setFlipped] = useState(false),
@@ -339,49 +375,6 @@ export default function Home() {
     [addOpen, setAddOpen] = useState(false),
     [libraryPage, setLibraryPage] = useState(1),
     [libraryQuery, setLibraryQuery] = useState("");
-  async function load() {
-    setStorage("loading");
-    try {
-      const saved = localStorage.getItem("bazuka-ielts-state-v1");
-      setState(saved ? JSON.parse(saved) : {});
-      setStorage("ready");
-      setError("");
-    } catch {
-      setStorage("error");
-      setError("Не удалось открыть сохранённые данные этого браузера.");
-    }
-  }
-  useEffect(() => {
-    void load();
-  }, []);
-  async function persist(key: string, value: any) {
-    if (storage !== "ready") {
-      setError("Дождись загрузки сохранённых данных и повтори попытку.");
-      return false;
-    }
-    if (
-      !/^(lesson|word|answer|note|custom|check|last):/.test(key) ||
-      JSON.stringify(value).length > 150000
-    ) {
-      setError("Некорректные данные.");
-      return false;
-    }
-    setBusy(true);
-    try {
-      const next = { ...state, [key]: value };
-      localStorage.setItem("bazuka-ielts-state-v1", JSON.stringify(next));
-      setState(next);
-      setError("");
-      return true;
-    } catch {
-      setError(
-        "Не удалось сохранить в этом браузере. Освободи место и повтори попытку.",
-      );
-      return false;
-    } finally {
-      setBusy(false);
-    }
-  }
   const customWords = Object.entries(state)
     .filter(([k, v]) => k.startsWith("custom:") && v)
     .map(([, v]) => v as Word);
@@ -757,8 +750,12 @@ export default function Home() {
           <div className="profile">
             <span>Д</span>
             <div>
-              <b>Моё пространство</b>
-              <small>Мой курс · IELTS</small>
+              <b>{profile?.display_name || "Моё пространство"}</b>
+              <small>
+                {profile?.role === "teacher"
+                  ? "Преподаватель"
+                  : "Мой курс · IELTS"}
+              </small>
             </div>
           </div>
         </SidebarFooter>
@@ -795,7 +792,9 @@ export default function Home() {
                 ? "Сохраняю…"
                 : storage === "error"
                   ? "Хранилище недоступно"
-                  : "Личное пространство"}
+                  : cloud
+                    ? "Сохранение в аккаунт"
+                    : "В этом браузере"}
           </span>
         </header>
         <main className="workspace" id="workspace-content" tabIndex={-1}>
@@ -816,6 +815,7 @@ export default function Home() {
               state={state}
             />
           )}
+          {view === "account" && <CloudWorkspace />}
           {view === "lessons" && (
             <CourseWorkspace
               key={route}

@@ -98,5 +98,12 @@
     "All original materials and source attribution",
     "Existing localStorage progress keys and IndexedDB recordings",
     "Recorded natural pronunciation; no synthetic speech added"
-  ]
+  ],
+  "accountUpgrade": {
+    "requestedOn": "2026-10-21",
+    "request": "Cloud student accounts, synchronization, teacher submissions and feedback; supersedes earlier local-only preference.",
+    "implementation": "Supabase Auth, RLS, private Storage, invitations, per-key revision protection, teacher inbox, explicit legacy import.",
+    "status": "implemented-pending-backend-connection-and-live-pilot-validation",
+    "teacherChange": "Admin can transfer enrolled students and existing submissions to another confirmed teacher."
+  }
 }
