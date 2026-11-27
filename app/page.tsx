@@ -73,6 +73,7 @@ import CourseWorkspace, {
   BandGuide,
 } from "@/components/course-workspace";
 import LanguageBoost from "@/components/language-boost";
+import MapsPresentation from "@/components/maps-presentation";
 import { SkillsHome, SkillSection } from "@/components/skill-navigation/skill-sections";
 type Word = {
   id: string;
@@ -418,6 +419,7 @@ export default function Home() {
       "lesson",
       "speaking-practice",
       "writing-practice",
+      "writing-maps",
     ];
     const target = known.includes(destination) ? destination : "home";
     setRoute(raw || "home");
@@ -465,7 +467,7 @@ export default function Home() {
       ? "lessons"
       : view === "speaking-practice"
         ? "speaking"
-        : view === "writing-practice"
+        : view === "writing-practice" || view === "writing-maps"
           ? "writing"
           : view;
   const pageName =
@@ -473,7 +475,9 @@ export default function Home() {
       ? selected.name
       : view === "speaking-practice"
         ? "Вопросы и практика"
-        : view === "writing-practice"
+        : view === "writing-maps"
+          ? "Task 1: Maps"
+          : view === "writing-practice"
           ? "Практика эссе"
           : nav.find((n) => n.id === navId)?.label || "Главная";
   useEffect(() => {
@@ -808,6 +812,7 @@ export default function Home() {
             </div>
           )}
           {view === "home" && <SkillsHome state={state} />}
+          {view === "writing-maps" && <MapsPresentation />}
           {(
             ["listening", "reading", "writing", "speaking"] as string[]
           ).includes(view) && (

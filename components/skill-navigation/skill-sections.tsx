@@ -36,7 +36,7 @@ export const skills = [
     ru: "Писать уверенно",
     icon: PenLine,
     description: "Построй аргументы, составь план и напиши своё эссе.",
-    count: `Task 2 · ${material.writing.length} тем для эссе`,
+    count: `Task 1 · Maps + Task 2`,
     steps: ["Разбери тему", "Составь план", "Напиши"],
   },
   {
@@ -107,6 +107,7 @@ const resources: Record<SkillId, Resource[]> = {
     },
   ],
   writing: [
+    { title: "Task 1: Maps", description: "Презентация: времена, расположение и лексика для описания карт.", meta: "11 слайдов · новый урок", href: "writing-maps" },
     {
       title: "Как построить Task 2",
       description:

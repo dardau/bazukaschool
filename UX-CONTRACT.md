@@ -23,3 +23,6 @@ This is a staged navigation change. Old recorder confirmation and legacy form be
 
 ## Verification
 Build/typecheck; lint the new skill component; inspect home, all four sections, direct lesson and source navigation, reload/Back, existing practice select popup, mobile menu and keyboard focus. Ensure original material JSON/public assets are unchanged in Git. New pages contain no network dependencies beyond existing links.
+
+## Writing Maps presentation
+Writing → Task 1: Maps opens an 11-slide, client-side presentation. Numbered buttons and Previous/Next navigate without storage; all lesson material remains readable by scrolling. Original images are preserved.

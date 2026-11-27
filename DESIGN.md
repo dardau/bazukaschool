@@ -66,3 +66,7 @@ Dashboard radius maps to `--skill-card-radius`; resources use 18px. Round arrows
 - Label actual available resources; do not present the current short passage/audio as full exam mocks.
 - Use native links for resource destinations, visible keyboard focus and clear hover.
 - Keep account/backend changes in their existing separate branch.
+
+
+## Writing Maps lesson
+The 11-slide presentation keeps the established Writing accent, native numbered navigation and readable original teacher-provided map images. Dense vocabulary remains grouped on its original slide and scrolls naturally on mobile.
